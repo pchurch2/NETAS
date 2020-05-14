@@ -1,0 +1,233 @@
+---
+# ALL SYSTEMS
+- name: Update Systems
+  hosts: all
+  become: true
+  tasks:
+
+  - name: Install Dependent Packages
+    yum:
+      name: 
+        - epel-release
+        - vim
+      state: present
+
+  - name: Enable PowerTools
+    ini_file:
+      path: /etc/yum.repos.d/CentOS-PowerTools.repo
+      section: PowerTools
+      option: enabled
+      value: "1"
+
+  - name: Update Packages via YUM
+    yum:
+      name: "*"
+      state: latest
+    register: yum_updates
+
+  - name: Reboot to Apply Patches
+    shell:  "sleep 10 && reboot"
+    async: 1
+    poll: 0
+    when: yum_updates.changed
+
+  - name: Halt for 15 Seconds
+    pause:
+      seconds: 15
+    when: yum_updates.changed
+
+  - name: Pending Successful System Reboots
+    wait_for_connection:
+      connect_timeout: 30
+      sleep: 10
+      delay: 10
+      timeout: 60
+    when: yum_updates.changed
+
+
+# ZEEK
+- name: Install and Configure Zeek
+  hosts: zeek-vm
+  become: true
+  tasks:
+
+    - name: Import Elastic PGP Key
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
+        state: present
+
+    - name: Copy Elastic Repo File
+      copy:
+        src: /vagrant/repos/elastic.repo
+        dest: /etc/yum.repos.d/elastic.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Filebeat
+      yum:
+        name: filebeat
+        state: present
+
+    - name: Stop Filebeat Service
+      systemd:
+        name: filebeat.service
+        state: stopped
+
+    - name: Copy Filebeat Config File
+      copy:
+        src: /vagrant/configs/filebeat.yml
+        dest: /etc/filebeat/filebeat.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable Zeek Filebeat Module
+      shell: filebeat modules enable zeek
+      register: zeek_filebeat_module
+
+    # - name: Load Zeek Filebeat Dashboards
+    #   shell: filebeat setup
+    #   register: zeek_filebeat_setup
+
+    - name: Enable and Start Filebeat Service
+      systemd:
+        name: filebeat.service
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Filebeat Service
+      pause:
+        minutes: 1
+
+    - name: Copy Zeek Repo File
+      copy:
+        src: /vagrant/repos/zeek.repo
+        dest: /etc/yum.repos.d/zeek.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Zeek
+      yum:
+        name: zeek-lts
+        state: present
+
+    - name: Copy Zeek Config Files
+      copy: src=/vagrant/configs/{{ item }} dest=/opt/zeek/etc/
+      with_items:
+        - networks.cfg
+        - node.cfg
+        - zeekctl.cfg
+
+    - name: Deploy ZeekControl
+      shell: /opt/zeek/bin/zeekctl deploy
+      register: zeek_deploy_zeekcontrol
+
+
+# ELASTIC
+- name: Install and Configure Elastic
+  hosts: elastic-kibana-vm
+  become: true
+  tasks:
+
+    - name: Import Elastic PGP Key
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
+        state: present
+
+    - name: Copy Elastic Repo File
+      copy:
+        src: /vagrant/repos/elastic.repo
+        dest: /etc/yum.repos.d/elastic.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Elastic
+      yum:
+        name: elasticsearch
+        state: present
+
+    - name: Stop Elastic Service
+      systemd:
+        name: elasticsearch.service
+        state: stopped
+
+    - name: Copy Elastic Config File
+      copy:
+        src: /vagrant/configs/elasticsearch.yml
+        dest: /etc/elasticsearch/elasticsearch.yml
+        owner: root
+        group: elasticsearch
+        mode: '0644'
+
+    - name: Enable and Start Elastic Service
+      systemd:
+        name: elasticsearch.service
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Elastic Service
+      wait_for:
+        port: 9200
+        delay: 10
+
+# KIBANA
+- name: Install and Configure Kibana
+  # hosts: kibana-vm
+  hosts: elastic-kibana-vm
+  become: true
+  tasks:
+
+    - name: Import Elastic PGP Key
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
+        state: present
+
+    - name: Copy Kibana Repo File
+      copy:
+        src: /vagrant/repos/kibana.repo
+        dest: /etc/yum.repos.d/kibana.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Kibana
+      yum:
+        name: kibana
+        state: present
+
+    - name: Stop Kibana Service
+      systemd:
+        name: kibana.service
+        state: stopped
+
+    - name: Copy Kibana Config File
+      copy:
+        src: /vagrant/configs/kibana.yml
+        dest: /etc/kibana/kibana.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable and Start Kibana Service
+      systemd:
+        name: kibana.service
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Kibana Service
+      wait_for:
+        port: 5601
+        delay: 10
+  
+    - name: Wait for Kibana Web Console Availability
+      pause: 
+        minutes: 2

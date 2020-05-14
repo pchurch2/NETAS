@@ -1,0 +1,7 @@
+[zeek]
+name=The Zeek Network Security Monitor. (CentOS_8)
+type=rpm-md
+baseurl=http://download.opensuse.org/repositories/security:/zeek/CentOS_8/
+gpgcheck=1
+gpgkey=http://download.opensuse.org/repositories/security:/zeek/CentOS_8/repodata/repomd.xml.key
+enabled=1
