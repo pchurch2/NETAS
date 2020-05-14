@@ -45,7 +45,114 @@
     when: yum_updates.changed
 
 
-# ZEEK
+# ELASTIC
+- name: Install and Configure Elastic
+  hosts: elastic-kibana-vm
+  become: true
+  tasks:
+
+    - name: Import Elastic PGP Key
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
+        state: present
+
+    - name: Copy Elastic Repo File
+      copy:
+        src: /vagrant/repos/elastic.repo
+        dest: /etc/yum.repos.d/elastic.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Elastic
+      yum:
+        name: elasticsearch
+        state: present
+
+    - name: Stop Elastic Service
+      systemd:
+        name: elasticsearch.service
+        state: stopped
+
+    - name: Copy Elastic Config File
+      copy:
+        src: /vagrant/configs/elasticsearch.yml
+        dest: /etc/elasticsearch/elasticsearch.yml
+        owner: root
+        group: elasticsearch
+        mode: '0644'
+
+    - name: Enable and Start Elastic Service
+      systemd:
+        name: elasticsearch.service
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Elastic Service
+      wait_for:
+        port: 9200
+        delay: 10
+
+
+# KIBANA
+- name: Install and Configure Kibana
+  # hosts: kibana-vm
+  hosts: elastic-kibana-vm
+  become: true
+  tasks:
+
+    - name: Import Elastic PGP Key
+      rpm_key:
+        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
+        state: present
+
+    - name: Copy Kibana Repo File
+      copy:
+        src: /vagrant/repos/kibana.repo
+        dest: /etc/yum.repos.d/kibana.repo
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Kibana
+      yum:
+        name: kibana
+        state: present
+
+    - name: Stop Kibana Service
+      systemd:
+        name: kibana.service
+        state: stopped
+
+    - name: Copy Kibana Config File
+      copy:
+        src: /vagrant/configs/kibana.yml
+        dest: /etc/kibana/kibana.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enable and Start Kibana Service
+      systemd:
+        name: kibana.service
+        state: started
+        enabled: yes
+        daemon_reload: yes
+
+    - name: Wait for Kibana Service
+      wait_for:
+        port: 5601
+        delay: 10
+  
+    - name: Wait for Kibana Web Console Availability
+      pause: 
+        minutes: 2
+
+
+# ZEEK AND FILEBEATS
 - name: Install and Configure Zeek
   hosts: zeek-vm
   become: true
@@ -125,109 +232,3 @@
     - name: Deploy ZeekControl
       shell: /opt/zeek/bin/zeekctl deploy
       register: zeek_deploy_zeekcontrol
-
-
-# ELASTIC
-- name: Install and Configure Elastic
-  hosts: elastic-kibana-vm
-  become: true
-  tasks:
-
-    - name: Import Elastic PGP Key
-      rpm_key:
-        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
-        state: present
-
-    - name: Copy Elastic Repo File
-      copy:
-        src: /vagrant/repos/elastic.repo
-        dest: /etc/yum.repos.d/elastic.repo
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Install Elastic
-      yum:
-        name: elasticsearch
-        state: present
-
-    - name: Stop Elastic Service
-      systemd:
-        name: elasticsearch.service
-        state: stopped
-
-    - name: Copy Elastic Config File
-      copy:
-        src: /vagrant/configs/elasticsearch.yml
-        dest: /etc/elasticsearch/elasticsearch.yml
-        owner: root
-        group: elasticsearch
-        mode: '0644'
-
-    - name: Enable and Start Elastic Service
-      systemd:
-        name: elasticsearch.service
-        state: started
-        enabled: yes
-        daemon_reload: yes
-
-    - name: Wait for Elastic Service
-      wait_for:
-        port: 9200
-        delay: 10
-
-# KIBANA
-- name: Install and Configure Kibana
-  # hosts: kibana-vm
-  hosts: elastic-kibana-vm
-  become: true
-  tasks:
-
-    - name: Import Elastic PGP Key
-      rpm_key:
-        key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-        fingerprint: 4609 5ACC 8548 582C 1A26 99A9 D27D 666C D88E 42B4
-        state: present
-
-    - name: Copy Kibana Repo File
-      copy:
-        src: /vagrant/repos/kibana.repo
-        dest: /etc/yum.repos.d/kibana.repo
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Install Kibana
-      yum:
-        name: kibana
-        state: present
-
-    - name: Stop Kibana Service
-      systemd:
-        name: kibana.service
-        state: stopped
-
-    - name: Copy Kibana Config File
-      copy:
-        src: /vagrant/configs/kibana.yml
-        dest: /etc/kibana/kibana.yml
-        owner: root
-        group: root
-        mode: '0644'
-
-    - name: Enable and Start Kibana Service
-      systemd:
-        name: kibana.service
-        state: started
-        enabled: yes
-        daemon_reload: yes
-
-    - name: Wait for Kibana Service
-      wait_for:
-        port: 5601
-        delay: 10
-  
-    - name: Wait for Kibana Web Console Availability
-      pause: 
-        minutes: 2
