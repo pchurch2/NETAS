@@ -40,3 +40,10 @@ The deployment process takes about 10-15 minutes in order to complete and provis
   - zeek-vm
 
 Once NETAS has successfully been deployed, the Kibana dashboards can be reached at `http://localhost:5601/` in your browser from your local host computer.
+
+Once the use is done with the VMs, they can be gracefully shutdown with `vagrant halt` or deleted from disk with `vagrant destroy`.  Be sure to perform these actions in the NETAS directory where the Vagrantfile is located/
+
+
+## NETAS Deployment Demo
+
+[NETAS Deployment Video (YouTube)](https://youtu.be/LkzmJ21lyyA)
