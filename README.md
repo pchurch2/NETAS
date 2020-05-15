@@ -11,10 +11,16 @@ This is an automated tool suite for Network Analysis using the following tools:
   - [Zeek](https://zeek.org/)
 
 ## Table of Contents  
-[Getting Started](#getting-started)  
+[Getting Started](#getting-started)
+
 [Deployment](#deployment)
+
+[Vagrant Commands](#vagrant-commands)
+
 [Environment](#environment)
+
 [Demo](#demo)
+
 [References](#references)
 
 ## Getting Started
