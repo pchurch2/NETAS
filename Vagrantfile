@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
   
   # PROVIDOR CONFIGURATIONS FOR ALL VMS
   config.vm.provider "virtualbox" do |virtualbox|
-    virtualbox.memory = "4096"
+    virtualbox.memory = "6144"
     virtualbox.cpus = 2
   end
 
@@ -22,9 +22,8 @@ Vagrant.configure("2") do |config|
     machine.vm.network "private_network", ip: "10.10.10.20"
     machine.vm.network "public_network", type: "dhcp"
     
-    # ENABLE PROMISCOUS MODE ON PUBLIC NETWORK
-    config.vm.provider :virtualbox do |vb|
-      vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+    config.vm.provider :virtualbox do |virtualbox|
+      virtualbox.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
     end
   end
 
@@ -35,8 +34,12 @@ Vagrant.configure("2") do |config|
     machine.vm.network "private_network", ip: "10.10.10.30"
     machine.vm.network "forwarded_port", guest: "5601", host: "5601"
     machine.vm.network "forwarded_port", guest: "9200", host: "9200"
-  end
+    machine.vm.network "public_network", type: "dhcp"
 
+    config.vm.provider :virtualbox do |virtualbox|
+      virtualbox.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
+    end
+  end
 
   # CREATE VM:  ANSIBLE
   config.vm.define "ansible-vm" do |machine|
@@ -50,7 +53,6 @@ Vagrant.configure("2") do |config|
       cp /vagrant/.vagrant/machines/elastic-kibana-vm/virtualbox/private_key /home/vagrant/.ssh/private_key_elastic-kibana-vm
       chmod 600 /home/vagrant/.ssh/private_key*
     EOF
-
 
     # PROVISION VM WITH ANSIBLE
     machine.vm.provision "ansible_local" do |ansible|
