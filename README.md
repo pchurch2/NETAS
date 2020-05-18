@@ -110,7 +110,7 @@ Other Vagrant commands can be found [here](https://www.vagrantup.com/docs/cli/).
 
 ## Demo
 
-[NETAS Deployment Video (YouTube)](https://youtu.be/LkzmJ21lyyA)
+[NETAS Deployment Video (YouTube)](https://youtu.be/6LLs2X-sqrc)
 
 ## References
 
