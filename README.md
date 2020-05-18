@@ -46,7 +46,7 @@ Vagrant can be broken down into three main components:
  2. Virtual Machine Provider:  Where Vagrant deploys the specified Virtual Machines (VirtualBox, Hyper-V, VMware, AWS, etc)
  3. Virtual Machine Provisioner:  The tools used in order to further install and configure the Virtual Machines (Ansible, Chef, Puppet, etc).
 
-NETAS utilizes Vagrant as the Virtual Machine Builder so that the environment can be installed and utilized on developers host Systems no matter what Operating System is being used.  Vagrant works with VirtualBox to build the following three Virtual Machines:  Ansible-VM, Elastic-Kibana-VM, and Zeek-VM.
+NETAS utilizes Vagrant as the Virtual Machine Builder so that the environment can be installed and utilized on developers host Systems no matter what Operating System is being used.  Vagrant works with VirtualBox to build the following three Virtual Machines:  Ansible-VM, Elastic-Kibana-VM, and Zeek-VM.  Vagrant is configured with the `Vagrantfile` located in the NETAX root directory.
 
 ### Ansible
 
@@ -65,13 +65,13 @@ NETAS utilizes Ansible as the Virtual Machine Provisioner of choice due to it's 
 
 Elasticsearch is an open source back-end tool used as a searching and analytics engine.  It's useful for various types of information and is the heart of the Elastic Stack (formerly ELK Stack) that bring together various products from the Elastic company.  Since Elasticsearch is used as a search and analytic engine, indexing is one of it's key purposes depending on the applicable use case.  Logs can be forward into Elasticsearch and indexed further so that queries can be ran in Kibana to further parse out to find helpful information.  Elasticsearch's storage format of choice is JSON and JSON files are grouped together in order to form an Index Collection which can be later easily be searched through RESTful API calls and queried with the Kibana Query Language via Kibana.  Furthermore, Shards are broken down as the separate documents within an Index Collection which help grouping and indexing information for faster search retrieval.
 
-NETAS utilizes Elasticsearch in conjunction with Kibana and Filebeat in order to bring Zeek logs into the forefront for further network traffic analysis.  Elasticsearch is installed and configured on the Elastic-Kibana-VM.
+NETAS utilizes Elasticsearch in conjunction with Kibana and Filebeat in order to bring Zeek logs into the forefront for further network traffic analysis.  Elasticsearch is installed and configured on the Elastic-Kibana-VM and is configured with the `elasticsearch.yml` config file in the `NETAS/configs` directory.
 
 ### Kibana
 
 Kibana is an open source front-end tool that makes the information stored in Elasticsearch more accessible.  The data indexed and stored in Elasticsearch can further visualize the provided information and can be queried using the Kibana Query Language (KQL).  Kibana is helpful in the use cases of log and security analytics, infrastructure monitoring, application performance monitoring, to name a few.
 
-NETAS utilizes Kibana in conjunction with Elasticsearch and Filebeat in order to bring Zeek logs into the forefront for further network traffic analysis.  Kibana is installed and configured on the Elastic-Kibana-VM.
+NETAS utilizes Kibana in conjunction with Elasticsearch and Filebeat in order to bring Zeek logs into the forefront for further network traffic analysis.  Kibana is installed and configured on the Elastic-Kibana-VM and is configured with the `kibana.yml` config file in the `NETAS/configs` directory.
 
 ### Filebeat
 
@@ -86,7 +86,7 @@ Some of the various Beats in addition to Filebeat are:
  - Heartbeat (Uptime Monitoring)
  - Functionbeat (Cloud Data)
 
-NETAS utilizes Filebeat via the Zeek Module in conjunction with Elasticsearch and Kibana in order to bring Zeek logs into the forefront for further network traffic analysis.  Filebeat is installed and configured on the Zeek-VM.
+NETAS utilizes Filebeat via the Zeek Module in conjunction with Elasticsearch and Kibana in order to bring Zeek logs into the forefront for further network traffic analysis.  Filebeat is installed and configured on the Zeek-VM and is configured with the `filebeat.yml` config file in the `NETAS/configs` directory.
 
 ### Zeek
 
@@ -113,7 +113,7 @@ Analysis and Detection Capabilities
 
 Zeek can further be customized and utilized with the Zeek Scripting language for custom use cases and can be used in conjunction with other network, security, and analysis tools for a more robust configuration.
 
-NETAS utilizes Zeek in conjunction with Elasticsearch, Kibana, and Filebeat in order to capture network traffic for further analysis via the Elastic Stack.   Zeek is installed on the Zeek-VM and the a Public Network Adapter is set to Promiscuous Mode in order to capture the traffic on the network.  Zeek is installed and configured on the Zeek-VM.
+NETAS utilizes Zeek in conjunction with Elasticsearch, Kibana, and Filebeat in order to capture network traffic for further analysis via the Elastic Stack.   Zeek is installed on the Zeek-VM and the a Public Network Adapter is set to Promiscuous Mode in order to capture the traffic on the network.  Zeek is installed and configured on the Zeek-VM and is configured with the `zeek.yml`, `networks.cfg`, `node.cfg`, `zeekctl.cfg` config files in the `NETAS/configs` directory.
 
 ## Getting Started
 
