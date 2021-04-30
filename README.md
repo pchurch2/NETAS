@@ -141,6 +141,10 @@ The deployment process takes about 10-15 minutes in order to complete.  It may t
   - elastic-kibana-vm
   - zeek-vm
 
+Default VM Credentials:
+  - Username:  `vagrant`
+  - Password:  `vagrant`
+
 Once NETAS has successfully been deployed, the Kibana Web Console can be reached at `http://localhost:5601/` in your browser from your local host computer (Firefox or Chrome recommended).
 
 Once the use is done with the VMs, they can be gracefully shutdown with `vagrant halt` or deleted from disk with `vagrant destroy`.  Be sure to perform these actions in the NETAS directory where the Vagrantfile is located.
