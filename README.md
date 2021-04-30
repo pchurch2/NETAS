@@ -123,7 +123,7 @@ NETAS utilizes Zeek in conjunction with Elasticsearch, Kibana, and Filebeat in o
  2. [Download](https://www.vagrantup.com/downloads.html) and [Install](https://www.vagrantup.com/docs/installation/) Vagrant
 
 - Validate Vagrant version and functionality.
-`$vagrant version`
+`$ vagrant version`
 
 
 ## Deployment
