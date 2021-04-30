@@ -14,10 +14,11 @@
 
   - name: Enable PowerTools
     ini_file:
-      path: /etc/yum.repos.d/CentOS-PowerTools.repo
-      section: PowerTools
+      path: /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
+      section: powertools
       option: enabled
       value: "1"
+      mode: "0644"
 
   - name: Update Packages via YUM
     yum:
